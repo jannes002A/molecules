@@ -3,7 +3,6 @@ import jax.numpy as jnp
 import jax.numpy.linalg as jnpl
 from gym import spaces
 import numpy as np
-import torch as T
 
 key = random.PRNGKey(0)
 
