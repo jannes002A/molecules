@@ -6,9 +6,9 @@ import sys
 import jax.numpy as jnp
 import numpy as np
 
-import methods.euler_maruyama as em
-import models.double_well as dw
-import visual.visual_sde as visual
+import pymolecules.methods.euler_maruyama as em
+import pymolecules.models.double_well as dw
+import pymolecules.visual.visual_sde as visual
 
 # system path
 #sys.path.append('../../')
