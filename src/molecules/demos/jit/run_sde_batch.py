@@ -2,16 +2,15 @@
 
 from collections import namedtuple
 import time
-import sys
 
 import jax.numpy as jnp
 from jax import random
 
-from doublewell_env import DoubleWell, potential_batch, gradient_batch
-from euler_marujama import EulerMaru, step_batch
+from molecules.models.doublewell_env import DoubleWell, potential_batch, gradient_batch
+from molecules.methods.euler_marujama import EulerMaru, step_batch
 
 def main():
-    """ Main method for running a trajectory following the SDE environment
+    """ Main method for running a trajectory following the double well environment
     """
 
     # define parameters

@@ -1,17 +1,14 @@
-import sys
+#!/bin/python
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-import models.harmonic_oscillator as ho
-import methods.euler_maruyama as em
-import visual.visual_sde as vsde
-
-# system path
-sys.path.append('../../')
+import molecules.models.harmonic_oscillator as ho
+import molecules.methods.euler_maruyama as em
+import molecules.visual.visual_sde as vsde
 
 def main():
-    """ Main method for running a simulation of SDE. Position and potential only.
+    """ Main method for running a trajectory following the harmonic oscillator environment
     """
 
     # define parameters

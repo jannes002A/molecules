@@ -1,19 +1,18 @@
-"""script for running a simulation of Butane
-"""
+#!/bin/python
+
 from jax import random
 import jax.numpy as jnp
-import sys
 import matplotlib.pyplot as plt
-import time
-sys.path.append('../../')
-# import user defined classes
-import models.Lennard_Jones_7 as lj7
-import methods.verlet as ver
-import visual.visual_butan as visual
+
+import molecules.models.Lennard_Jones_7 as lj7
+import molecules.methods.verlet as ver
+import molecules.visual.visual_butan as visual
 
 
 def main():
-    """Main method for sampling """
+    """ Main method for running a trajectory following the LennardJones environment
+    """
+
     # define parameters
     pos = [0] * 14
     for i in range(1, 7):

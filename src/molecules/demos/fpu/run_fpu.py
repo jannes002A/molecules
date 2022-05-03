@@ -1,15 +1,14 @@
-"""script for running a simulation of Fermi-Pasta-Ulam
-"""
-import jax.numpy as jnp
-import sys
-sys.path.append('../../')
-# define user defined classes
-import models.femi_pasta_ulam as fpu
-import methods.verlet as ver
+#!/bin/python
 
+import jax.numpy as jnp
+
+import molecules.models.femi_pasta_ulam as fpu
+import molecules.methods.verlet as ver
 
 def main():
-    """Main method for sampling """
+    """ Main method for running a trajectory following the Fermi-Pasta-Ulam environment
+    """
+
     # define position and momentum
     q0 = jnp.array(list(range(16)))
     p0 = [jnp.cos(10*2*jnp.pi*i/16) for i in range(16)]

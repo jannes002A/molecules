@@ -3,7 +3,7 @@ from jax import random, grad, jit, vmap
 import numpy as np
 import pytest
 
-import models.butan as butan
+import molecules.models.butan as butan
 
 class TestButan:
 

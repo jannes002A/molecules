@@ -1,15 +1,11 @@
 #!/bin/python
 
-import sys
-import time
-sys.path.append('../../')
-
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
-import methods.euler_maruyama_batch as em
-import models.butan as butan
-import visual.visual_butan as visual
+import molecules.methods.euler_maruyama_batch as em
+import molecules.models.butan as butan
+import molecules.visual.visual_butan as visual
 
 def main():
     """ Main method for running a simulation of Butane

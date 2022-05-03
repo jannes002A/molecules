@@ -1,9 +1,8 @@
 import jax.numpy as jnp
 import pytest
 
-import models.double_well as dw
-import methods.euler_maruyama as em
-
+import molecules.models.double_well as dw
+import molecules.methods.euler_maruyama as em
 
 class TestEulerMayurama:
 

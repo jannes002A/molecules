@@ -1,17 +1,14 @@
 #!/bin/python
 
-import sys
-sys.path.append('../../')
-
 import jax.numpy as jnp
 
-import methods.euler_maruyama_batch as em
-import models.double_well as dw
-import visual.visual_sde as visual
+import molecules.methods.euler_maruyama_batch as em
+import molecules.models.double_well as dw
+import molecules.visual.visual_sde as visual
 
 
 def main():
-    """ Main method for running a batch of trajectories following the SDE environment
+    """ Main method for running a batch of trajectories following the double well environment
     """
 
     # example d = 2, beta = 1.0, alpha_i = 0.5 

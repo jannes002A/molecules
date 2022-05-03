@@ -1,17 +1,14 @@
-"""script for running a simulation of SDE
-position and potential only
-"""
 import jax.numpy as jnp
-import sys
 import matplotlib.pyplot as plt
-sys.path.append('../../')
-# import user defined classes
-import models.double_well as dw
-import methods.euler_maruyama as em
-import visual.visual_sde as vsde
+
+import molecules.models.double_well as dw
+import molecules.methods.euler_maruyama as em
+import molecules.visual.visual_sde as vsde
 
 def main():
-    """Main method for sampling """
+    """ Main method for running a trajectory following the double well environment.
+    """
+
     # define parameters
     d = 10
     x0 = jnp.array([-1.0]*d)

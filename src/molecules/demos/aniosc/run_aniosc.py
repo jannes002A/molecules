@@ -1,16 +1,16 @@
-"""script for running a simulation of Ani Oscilator
-"""
+#!/bin/python
+
 import jax.numpy as jnp
-import sys
-sys.path.append('../../')
-# import user defined classes
-import models.aniosc as aniosc
-import methods.verlet as ver
-import visual.visual_aniosc as visual
+
+import molecules.models.aniosc as aniosc
+import molecules.methods.verlet as ver
+import molecules.visual.visual_aniosc as visual
 
 
 def main():
-    """Main method for sampling """
+    """ Main method for running a trajectory following the Ani Oscilator environment
+    """
+
     # define parameters
     epsilon = 0.5  # anisotropy parameter
     q0 = jnp.array([2.0, 0.0])

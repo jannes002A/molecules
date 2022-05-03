@@ -3,7 +3,7 @@ from jax import random, grad, jit, vmap
 import numpy as np
 import pytest
 
-import models.double_well as dw
+import molecules.models.double_well as dw
 
 class TestDoubleWell:
 

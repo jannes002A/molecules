@@ -1,24 +1,20 @@
 #!/bin/python
 
 import time
-import sys
 
 import jax.numpy as jnp
 import numpy as np
 
-import pymolecules.methods.euler_maruyama as em
-import pymolecules.models.double_well as dw
-import pymolecules.visual.visual_sde as visual
-
-# system path
-#sys.path.append('../../')
+import molecules.methods.euler_maruyama as em
+import molecules.models.double_well as dw
+import molecules.visual.visual_sde as visual
 
 def main():
-    """ Main method for running a trajectory following the SDE environment
+    """ Main method for running a trajectory following the double well environment
     """
 
     # define parameters
-    d = 4 
+    d = 4
     dim = (d,)
     beta = 1.0
     alpha_i = 1.0

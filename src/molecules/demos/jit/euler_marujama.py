@@ -4,7 +4,7 @@ import time
 from jax import jit, random
 import jax.numpy as jnp
 
-from doublewell_env import gradient, gradient_batch, criterion, criterion_batch
+from molecules.models.doublewell_env import gradient, gradient_batch, criterion, criterion_batch
 
 
 EulerMaru = namedtuple(
