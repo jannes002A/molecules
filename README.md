@@ -1,19 +1,6 @@
 # Reinforcement Learning for Molecular Dynamics
 This project aim to use a reinforcement learing approach to solve sampling problems for metastable dynamical systems. The project catins two main packages. The algorithm package contains some state of the art reinforcement learning algorihtms (see below for more info). The environment package contains differnt dynmical system which can be simulated with different time evolution methods (see also below for more info)
 
-## Algorihtms
-
-This folder contains differen state of the art reinforcement learning algorithms. At the moment there are
-	
-- REINFORCE
-- Actor Critic
-- Cross Entropy
-- DDPG
-
-A demo for an low dimensional SDE environment can be found under 
-```
-"algorihtm*"/src/run_"alg"_sde.py
-```
 
 ## Environments
 In the environments folder different dynmical models can be found as well as different time integration methods
@@ -42,17 +29,17 @@ python run_sde_eng.py
 
 #### SDE Double Well
 The SDE environment samples a double well potential in a choosen dimension. Here is a 10d examples
-![SDE in 10 dimension](/environments/demos/pics/sde10.png) 
+![SDE in 10 dimension](/src/pymolecules/demos//pics/sde10.png) 
 
 
 #### AniOsc
 This model runs an anisotropic oscillator model. 
-![10000 Time Steps of AniOsc](/environments/demos/pics/aniosc_demo_10000.png) 
+![10000 Time Steps of AniOsc](/src/pymolecules/demos/pics/aniosc_demo_10000.png) 
 
 ### Butane
 With this env you can run butane trajectories.
 
-![Small butane trajectory](/environments/demos/pics/butane.gif ) 
+![Small butane trajectory](/src/pymolecules/demos/pics/butane.gif ) 
 
 [^1]: Examples from: 
 	MD.M: Matlab MD code  
