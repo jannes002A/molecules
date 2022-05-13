@@ -30,7 +30,7 @@ def main():
 
     # define sampling method
     dt = 0.01
-    sampler = em.Euler_maru(env, x0, dt=dt, key=1)
+    sampler = em.EulerMaru(env, x0, dt=dt, seed=1)
 
     # set the control to zero
     action = jnp.zeros(env.dim)
@@ -49,8 +49,8 @@ def main():
 
         # update position
         state, reward, done, _ = sampler.step(action)
-        #breakpoint()
         print(state)
+
         # get position and potential
         position.append(np.asarray(state))
         potential.append(env.potential(state))

@@ -23,7 +23,7 @@ class TestEulerMayurama:
         # time step
         dt = 0.01
 
-        return em.Euler_maru(doublewell_env, start=[xinit_i] * d, dt=dt)
+        return em.EulerMaru(doublewell_env, start=[xinit_i] * d, dt=dt)
 
     #@pytest.mark.skip()
     def test_em_step(self, doublewell_env, doublewell_sampler):

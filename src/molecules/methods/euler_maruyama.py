@@ -3,7 +3,7 @@ import jax.numpy as jnp
 from gym import spaces
 
 
-class Euler_maru:
+class EulerMaru(object):
     """Euler Maruyama descritization for sde simulation
 
     Attributes
@@ -43,7 +43,7 @@ class Euler_maru:
         calculates position and energy
     """
 
-    def __init__(self, env, start, dt, key=0):
+    def __init__(self, env, start, dt, seed=0):
         """
         Parameters
         ----------
@@ -53,30 +53,31 @@ class Euler_maru:
             starting position of the system
         dt: float
             time step
-        key: int
-            random state
+        seed: int
+            seed to generate the random key
 
         """
         # environment
         self.env = env
-
+        self.dim = self.env.dim
+        self.beta = self.env.beta
+        self.sigma = self.env.sigma
         self.min_action = self.env.min_action
         self.max_action = self.env.max_action
         self.min_position = self.env.min_position
         self.max_position = self.env.max_position
-        self.dim = self.env.dim
         self.name = self.env.name
-        #assert len(start) == self.dim[0], "Dimension missmatch"
 
+        # sampler
+        #assert len(start) == self.dim[0], "Dimension missmatch"
         self.start = start
         self.dt = dt
-        self.beta = self.env.beta
-        self.sigma = self.env.sigma
         self.dbt = jnp.zeros(self.dim)
         self.state = jnp.zeros(self.dim)
-        self.seed = key
-        self.key = random.PRNGKey(key)
+        self.seed = seed
+        self.key = random.PRNGKey(seed)
 
+        # observation space and action space as gym boxes
         self.action_space = spaces.Box(
             low=self.min_action,
             high=self.max_action,
@@ -91,24 +92,29 @@ class Euler_maru:
         )
         self.observation_space_dim = self.env.network_input
         self.action_space_dim = self.env.network_output
+
+        # reset sampler
         self.reset()
 
     def reset(self):
-        """Set the start value of the sde
-
-        set start value of position and brownian motion
+        """ Set the start value of the sde and the brownian motion increments
         """
         self.reset_dbt()
-        self.state = jnp.array(self.start)
+        self.reset_state()
         return self.state
 
+    def reset_state(self):
+        """ Set start value of the sde
+        """
+        self.state = jnp.array(self.start)
+
     def reset_dbt(self):
-        """Set start value of brownian motion"""
+        """ Set start value of the brownian motion increments
+        """
         self.dbt = jnp.zeros(self.dim)
-        return
 
     def step(self, action):
-        """Performs one euler mayurama step
+        """ Performs one euler mayurama step given for the current state and the given action
 
         Parameters
         ----------
@@ -117,14 +123,14 @@ class Euler_maru:
 
         Returns
         -------
-        state : jnp.array
+        state : jax array
             current state
         reward : float
             reward of the current position
         done : bool
             if target set is reached
-        dbt : jnp.array
-            current Brownian motion
+        dbt : jax array
+            current Brownian motion increment
         """
         # get key
         self.key, subkey = random.split(self.key)
@@ -137,28 +143,28 @@ class Euler_maru:
         self.dbt = jnp.sqrt(self.dt) * random.normal(subkey, shape=self.dim)
 
         # stochastic equation of motion
-        self.state -= (pot_grad + action) * self.dt + self.sigma * self.dbt
+        self.state += (- pot_grad + self.sigma * action) * self.dt + self.sigma * self.dbt
 
         # is trajectory in hitting set ?
         done = self.env.criterion(self.state)
 
         # reward
-        reward = -1/2 * action.flatten()@action.flatten()*self.dt - self.dt
+        reward = - 1/2 * action.flatten()@action.flatten()*self.dt + self.dt
 
         return self.state, reward, done, [self.dbt]
 
     def step_eng(self):
-        """Evaluates position and energy of the system
+        """ Evaluates position and energy of the system
         Function performs a time step of the EM algorithm
         and evaluates the potential at the new position
 
         Returns
         -------
-        state : jnp.array
+        state : jax array
             position of the system
         momentum : float
             momentum of the system
-        pot : flaat
+        pot : float
             energy at current position
         pot : float
             computed energy of the current position

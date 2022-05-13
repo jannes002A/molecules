@@ -23,7 +23,7 @@ def main():
     print(env.grad(q0))
 
     # get sampling method
-    sampler = ver.verlet(env, q0, p0, 0.1)
+    sampler = ver.Verlet(env, q0, p0, 0.1)
     action = jnp.zeros(env.dim)
 
     # run sampling and print states

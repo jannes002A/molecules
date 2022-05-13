@@ -22,7 +22,7 @@ def main():
     print(env.grad(q0))
 
     # define sampling method
-    sampler = ver.verlet(env, q0, p0, 0.01)
+    sampler = ver.Verlet(env, q0, p0, 0.01)
     action = jnp.zeros(env.dim)
 
     # run simulation

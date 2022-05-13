@@ -34,7 +34,7 @@ def main():
 
     # define sampling method
     dt = 0.01
-    em = EulerMaru(env, dt=dt, key=key)
+    em = EulerMaru(env, dt=dt, seed=1)
 
     # set the control to zero
     action = jnp.zeros(env.dim)

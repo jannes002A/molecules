@@ -26,7 +26,7 @@ def main():
 
     # define sampling method
     dt = 0.000005
-    sampler = em.Euler_maru(env, q0, dt, key=10)
+    sampler = em.EulerMaru(env, q0, dt, seed=10)
     action = jnp.zeros(env.dim)
 
     # position, angle and potential

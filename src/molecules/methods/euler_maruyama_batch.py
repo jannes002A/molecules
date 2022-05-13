@@ -74,7 +74,9 @@ class EulerMaru(object):
             seed to generate the random key
 
         """
+        # environment
         self.env = env
+
         self.min_action = self.env.min_action
         self.max_action = self.env.max_action
         self.min_position = self.env.min_position

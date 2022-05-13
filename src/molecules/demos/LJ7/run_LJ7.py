@@ -42,7 +42,7 @@ def main():
     print(env.grad(state))
 
     # define sampling method
-    sampler = ver.verlet(env, state, momentum, 0.01)
+    sampler = ver.Verlet(env, state, momentum, 0.01)
 
     # run simulation and print states
     position = []

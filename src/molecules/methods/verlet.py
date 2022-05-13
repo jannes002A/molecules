@@ -3,7 +3,7 @@ import jax.numpy as jnp
 from gym import spaces
 
 
-class verlet:
+class Verlet:
     """ Verlet algorithm for simulation of dynamical systems
 
     Attributes
@@ -24,8 +24,8 @@ class verlet:
         init Brownian motion vector
     state : jnp.array
         init start position
-    key : int
-        random key
+    seed : int
+        seed to generate the random key
     action_space : spaces.Box
         action space
     observation_space : spaces.Box
@@ -39,7 +39,7 @@ class verlet:
         calculates position and energy
     """
 
-    def __init__(self, env, q0, p0,  dt, key=0):
+    def __init__(self, env, q0, p0,  dt, seed=0):
         """
         Parameters
         ----------
@@ -51,8 +51,8 @@ class verlet:
             starting momentum of the system
         dt: float
             time step
-        key: int
-            random state
+        seed : int
+            seed to generate the random key
 
         """
         # environment
@@ -70,7 +70,8 @@ class verlet:
         self.start = q0
         self.dt = dt
         self.state = jnp.zeros(self.dim)
-        self.key = random.PRNGKey(key)
+        self.seed = seed
+        self.key = random.PRNGKey(seed)
 
         self.action_space = spaces.Box(
             low=self.min_action,

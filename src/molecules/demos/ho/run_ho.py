@@ -20,7 +20,7 @@ def main():
     print(env.grad(state0))
 
     # define sampling method
-    sampler = em.Euler_maru(env, state0, 0.001, key=10)
+    sampler = em.EulerMaru(env, state0, 0.001, seed=10)
 
     # run simulation
     state = []
@@ -32,8 +32,9 @@ def main():
         #print(new_state)
 
     # plot trajectory
-    vsde.visualize_trajectory(vsde.convert2df(state))
-    vsde.visualize_trajectory(vsde.convert2df(energy))
+    #TODO: check
+    #vsde.visualize_trajectory(vsde.convert2df(state))
+    #vsde.visualize_trajectory(vsde.convert2df(energy))
 
 
 if __name__ == '__main__':
