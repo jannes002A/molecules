@@ -8,7 +8,7 @@ import molecules.models.butan as butan
 import molecules.visual.visual_butan as visual
 
 def main():
-    """ Main method for running a simulation of Butane
+    """ Main method for running a batch of Butane simulations
     """
 
     # define environment
@@ -26,39 +26,41 @@ def main():
     print('gradient at initial state: {}'.format(env.grad(q0)))
 
     # batch size
-    K = 10
+    K = 5
     q0 = jnp.repeat(q0[jnp.newaxis, :, :], K, axis=0)
 
     # define sampling method
     dt = 0.000005
-    sampler = em.Euler_maru(env, q0, dt, K, key=10)
-    action = jnp.zeros((K,) + env.dim)
+    sampler = em.EulerMaru(env, q0, dt, K, seed=1)
+    actions = jnp.zeros((K,) + env.dim)
 
     # preallocate position, angle and potential along the trajectories
     n_max_steps = 100
-    position = jnp.empty((n_max_steps+1, K)+env.dim, jnp.float32)
-    angle = jnp.empty((n_max_steps+1, K), jnp.float32)
-    potential = jnp.empty((n_max_steps+1, K), jnp.float32)
+    positions = jnp.empty((n_max_steps+1, K)+env.dim, jnp.float32)
+    angles = jnp.empty((n_max_steps+1, K), jnp.float32)
+    potentials = jnp.empty((n_max_steps+1, K), jnp.float32)
 
     # get initial position, angle and potential
-    position = position.at[0].set(q0)
-    angle = angle.at[0].set(env.get_angle_batch(q0))
-    potential = potential.at[0].set(env.potential_batch(q0))
+    positions = positions.at[0].set(q0)
+    angles = angles.at[0].set(env.get_angle_batch(q0))
+    potentials = potentials.at[0].set(env.potential_batch(q0))
 
     # run simulation
     for n in range(n_max_steps):
 
         # update position
-        state, _, _, _ = sampler.step(action)
+        states, rewards, done, obs = sampler.step(actions)
+
+        print('time step: {}, rewards: {}'.format(n, rewards))
 
         # get position, angle and potential
-        position = position.at[n+1].set(state)
-        angle = angle.at[n+1].set(env.get_angle_batch(state))
-        potential = potential.at[n+1].set(env.potential_batch(state))
+        positions = positions.at[n+1].set(states)
+        angles = angles.at[n+1].set(env.get_angle_batch(states))
+        potentials = potentials.at[n+1].set(env.potential_batch(states))
 
-    #visual.visualize_trajectory_batch(position)
-    visual.visualize_angle_batch(angle, dt)
-    visual.visualize_potential_batch(potential, dt)
+    visual.visualize_trajectory(positions[:, 0])
+    visual.visualize_angle_batch(angles, dt)
+    visual.visualize_potential_batch(potentials, dt)
 
 
 if __name__ == '__main__':

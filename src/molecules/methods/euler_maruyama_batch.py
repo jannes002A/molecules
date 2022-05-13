@@ -3,7 +3,7 @@ import jax.numpy as jnp
 from gym import spaces
 
 
-class Euler_maru:
+class EulerMaru(object):
     """Euler Maruyama descritization for sde simulation
 
     Attributes
@@ -24,8 +24,10 @@ class Euler_maru:
         inverse temperature
     dbt : jnp.array
         init Brownian motion vector
-    state : jnp.array
-        init start position
+    states : jnp.array
+        batch of states
+    actions : jnp.array
+        batch of actions
     is_in_hitting_set : jnp bool array
         True if the trajectory is (in the actial time step) in the hitting set
     been_in_hitting_set : jnp bool array
@@ -34,8 +36,8 @@ class Euler_maru:
         True if the trajectory has now arrived in the hitting set
     idx_new_in_hitting_set : jnp int array
         array of indices of trajectories which now arrived in the hitting set
-    key : int
-        random key
+    seed : int
+        seed to generate the random key
     action_space : spaces.Box
         action space
     observation_space : spaces.Box
@@ -45,14 +47,19 @@ class Euler_maru:
     -------
     reset()
         reset state to start value
+    reset_states()
+        set states to start
     reset_dbt()
         set dbt to 0
-    step(action=jax array)
+    update_been_in_hitting_set()
+        update hitting time arrays
+    step(actions=jax array)
         calculates position, reward, done
     """
 
-    def __init__(self, env, start, dt, K, key=0):
-        """
+    def __init__(self, env, start, dt, K, seed=0):
+        """ init method
+
         Parameters
         ----------
         env: environment object
@@ -63,8 +70,8 @@ class Euler_maru:
             time step
         K: int
             number of trajectories
-        key: int
-            random state
+        seed: int
+            seed to generate the random key
 
         """
         self.env = env
@@ -82,73 +89,87 @@ class Euler_maru:
         self.start = start
         self.dt = dt
         self.dbt = jnp.zeros((K,) + self.dim)
-        self.state = jnp.zeros((K,) + self.dim)
-        self.seed = key
-        self.key = random.PRNGKey(key)
+        self.states = jnp.zeros((K,) + self.dim)
+        self.seed = seed
+        self.key = random.PRNGKey(seed)
 
-        self.action_space = spaces.Box(
-            low=self.min_action,
-            high=self.max_action,
-            shape=self.dim,
-            dtype=jnp.float32
-        )
+        # observation space and action space as gym boxes
         self.observation_space = spaces.Box(
             low=self.min_position,
             high=self.max_position,
             shape=self.dim,
             dtype=jnp.float32
         )
+        self.action_space = spaces.Box(
+            low=self.min_action,
+            high=self.max_action,
+            shape=self.dim,
+            dtype=jnp.float32
+        )
         self.action_space_dim = self.env.network_output
         self.observation_space_dim = self.env.network_input
+
+        # reset sampler
         self.reset()
 
     def reset(self):
-        """Set the start value of the sde
-
-        set start value of position and brownian motion
+        """ Set the start value of the sde and the brownian motion increments.
+            Also preallocates the hitting set arrays and the control integral arrays.
         """
+
+        # reset state and brownian increments 
+        self.reset_states()
         self.reset_dbt()
-        self.state = jnp.array(self.start)
+
+        # preallocate hitting set arrays
         self.been_in_hitting_set = jnp.zeros(self.K, dtype=bool)
         self.idx_new_in_hitting_set = jnp.array([], dtype=jnp.int32)
-        return self.state
+
+        # preallocate control integral
+        self.det_int_t = jnp.zeros(self.K)
+        self.det_int_fht = jnp.empty(self.K)
+        return self.states
+
+    def reset_states(self):
+        """ Set start value of the sde
+        """
+        self.states = jnp.array(self.start)
 
     def reset_dbt(self):
-        """Set start value of brownian motion"""
+        """ Set start value of the brownian motion increments
+        """
         self.dbt = jnp.zeros((self.K,) + self.dim)
-        return
 
     def update_been_in_hitting_set(self):
+        """ update hitting time arrays
         """
 
-        """
         # indices of trajectories new in the target set
-        idx = jnp.where(
+        self.idx_new = jnp.where(
             (self.is_in_hitting_set == True) &
             (self.been_in_hitting_set == False)
         )[0]
 
         # update been in hitting set array
-        if idx.shape[0] != 0:
-            self.idx_new_in_hitting_set = idx
-            self.been_in_hitting_set = self.been_in_hitting_set.at[idx].set(True)
+        if self.idx_new.shape[0] != 0:
+            self.been_in_hitting_set = self.been_in_hitting_set.at[self.idx_new].set(True)
 
-    def step(self, action):
-        """Performs one euler mayurama step
+    def step(self, actions):
+        """ Performs one euler mayurama step for a batch of states and actions
 
         Parameters
         ----------
-        action : jax array
-            action which should be applied to the system
+        actions : jax array
+            batch of actions which should be applied to the system
 
         Returns
         -------
-        state : jnp.array
-            current state
-        reward : float
-            reward of the current position
+        states : jnp.array
+            current batch of states
+        rewards : float
+            batch of reward of the current positions
         done : bool
-            if target set is reached
+            if target set is reached by all trajectories
         dbt : jnp.array
             current Brownian motion
         """
@@ -156,25 +177,35 @@ class Euler_maru:
         self.key, subkey = random.split(self.key)
 
         # reshape state and action
-        state = jnp.reshape(self.state, (self.K,) + self.dim)
-        action = jnp.reshape(action, (self.K,) + self.dim)
+        states = jnp.reshape(self.states, (self.K,) + self.dim)
+        actions = jnp.reshape(actions, (self.K,) + self.dim)
 
         # compute drift and diffusion terms
-        pot_grad = self.env.grad_batch(state)
+        pot_grad = self.env.grad_batch(states)
         self.dbt = jnp.sqrt(self.dt) * random.normal(subkey, shape=(self.K,)+self.dim)
 
         # stochastic equation of motion
-        self.state -= (pot_grad + action) * self.dt + self.sigma * self.dbt
+        states += (- pot_grad + self.sigma * actions) * self.dt + self.sigma * self.dbt
+        self.states = states
+
+        # update control integral
+        normed_actions = vmap(jnp.linalg.norm, (0,), 0)(actions)
+        self.det_int_t += (normed_actions ** 2) * self.dt
 
         # are trajectories in hitting set ?
-        self.is_in_hitting_set = self.env.criterion_batch(self.state)
+        self.is_in_hitting_set = self.env.criterion_batch(states)
+
+        # update target set arrays
         self.update_been_in_hitting_set()
+
+        # done flag
         done = self.been_in_hitting_set.all()
 
         # reward
-        action_flat = action.reshape(self.K, self.env.dim_flat)
-        reward = - 1 / 2 \
-               * vmap(jnp.matmul, (0, 0), 0)(action_flat, action_flat) * self.dt \
-               - self.dt
+        rewards = jnp.zeros(self.K)
+        idx_never = jnp.where(self.been_in_hitting_set == False)[0]
+        rewards = rewards.at[idx_never].set(
+            - 0.5 * self.det_int_t[idx_never] * self.dt - self.dt
+        )
 
-        return self.state, reward, done, [self.dbt, self.idx_new_in_hitting_set]
+        return states, rewards, done, [self.dbt, self.idx_new]
