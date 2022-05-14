@@ -149,7 +149,7 @@ class EulerMaru(object):
         done = self.env.criterion(self.state)
 
         # reward
-        reward = - 1/2 * action.flatten()@action.flatten()*self.dt + self.dt
+        reward = - 1/2 * action.flatten()@action.flatten()*self.dt - self.dt
 
         return self.state, reward, done, [self.dbt]
 
